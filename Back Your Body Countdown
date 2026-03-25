@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+  <meta name="description" content="BACK YOUR BODY launch countdown" />
+  <title>BACK YOUR BODY Countdown</title>
+
+  <style>
+    :root {
+      --bg: #02B596;
+      --text: #FFFFFF;
+      --confetti-1: #FCF2D1;
+      --confetti-2: #FDCBE6;
+      --confetti-3: #E8F7C8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    #wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      padding: 24px;
+      isolation: isolate;
+    }
+
+    #confetti-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .timer {
+      position: relative;
+      z-index: 1;
+      width: min(94vw, 920px);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .main-title {
+      font-family: "Arial Black", Arial, Helvetica, sans-serif;
+      font-weight: 900;
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      line-height: 0.88;
+      text-transform: uppercase;
+      color: var(--text);
+      letter-spacing: 0;
+      text-align: center;
+    }
+
+    .main-title span {
+      display: block;
+    }
+
+    .subheading {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 400;
+      font-size: clamp(0.95rem, 2vw, 1.4rem);
+      text-transform: uppercase;
+      color: var(--text);
+      text-align: center;
+      letter-spacing: 0.38em;
+      padding-left: 0.38em;
+      white-space: nowrap;
+    }
+
+    .countdown {
+      width: 100%;
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: clamp(10px, 2vw, 28px);
+      margin-top: 8px;
+      white-space: nowrap;
+    }
+
+    .time-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-width: 90px;
+      padding: 4px 2px;
+      flex: 0 0 auto;
+    }
+
+    .time-value {
+      font-family: "Arial Black", Arial, Helvetica, sans-serif;
+      font-weight: 900;
+      font-size: clamp(1.8rem, 4vw, 3.4rem);
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .time-label {
+      margin-top: 8px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      font-size: clamp(0.68rem, 1vw, 0.95rem);
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .live-message {
+      font-family: "Arial Black", Arial, Helvetica, sans-serif;
+      font-weight: 900;
+      font-size: clamp(1.6rem, 4vw, 2.8rem);
+      line-height: 1;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-top: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .timer {
+        width: min(96vw, 920px);
+        gap: 10px;
+      }
+
+      .subheading {
+        letter-spacing: 0.22em;
+        padding-left: 0.22em;
+        font-size: clamp(0.85rem, 3.4vw, 1rem);
+      }
+
+      .countdown {
+        gap: 10px;
+        transform: scale(0.9);
+        transform-origin: center top;
+      }
+
+      .time-block {
+        min-width: 72px;
+      }
+
+      .time-label {
+        font-size: 0.68rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .countdown {
+        gap: 6px;
+        transform: scale(0.78);
+      }
+
+      .time-block {
+        min-width: 64px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #confetti-canvas {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="wrapper">
+    <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+    <main class="timer" aria-label="Launch countdown">
+      <h1 class="main-title" id="main-title">
+        <span>BACK</span>
+        <span>YOUR</span>
+        <span>BODY</span>
+      </h1>
+
+      <p class="subheading" id="subheading">LAUNCHING SOON</p>
+
+      <section class="countdown" id="countdown" aria-live="polite">
+        <div class="time-block">
+          <div class="time-value" id="days">0</div>
+          <div class="time-label">DAYS</div>
+        </div>
+        <div class="time-block">
+          <div class="time-value" id="hours">0</div>
+          <div class="time-label">HOURS</div>
+        </div>
+        <div class="time-block">
+          <div class="time-value" id="minutes">0</div>
+          <div class="time-label">MINUTES</div>
+        </div>
+        <div class="time-block">
+          <div class="time-value" id="seconds">0</div>
+          <div class="time-label">SECONDS</div>
+        </div>
+      </section>
+
+      <div class="live-message" id="live-message" hidden>NOW LIVE</div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const targetTime = new Date("2026-04-07T23:00:00Z").getTime();
+
+      const daysEl = document.getElementById("days");
+      const hoursEl = document.getElementById("hours");
+      const minutesEl = document.getElementById("minutes");
+      const secondsEl = document.getElementById("seconds");
+      const countdownEl = document.getElementById("countdown");
+      const subheadingEl = document.getElementById("subheading");
+      const liveMessageEl = document.getElementById("live-message");
+
+      function pad(value) {
+        return String(value).padStart(2, "0");
+      }
+
+      function updateCountdown() {
+        const now = Date.now();
+        const diff = targetTime - now;
+
+        if (diff <= 0) {
+          daysEl.textContent = "00";
+          hoursEl.textContent = "00";
+          minutesEl.textContent = "00";
+          secondsEl.textContent = "00";
+          subheadingEl.textContent = "LAUNCHED";
+          countdownEl.hidden = true;
+          liveMessageEl.hidden = false;
+          return;
+        }
+
+        const totalSeconds = Math.floor(diff / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        daysEl.textContent = String(days);
+        hoursEl.textContent = pad(hours);
+        minutesEl.textContent = pad(minutes);
+        secondsEl.textContent = pad(seconds);
+      }
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+
+      const canvas = document.getElementById("confetti-canvas");
+      const ctx = canvas.getContext("2d", { alpha: true });
+      const colors = ["#FCF2D1", "#FDCBE6", "#E8F7C8"];
+      const particles = [];
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      let width = 0;
+      let height = 0;
+
+      function resizeCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = Math.floor(width * ratio);
+        canvas.height = Math.floor(height * ratio);
+        canvas.style.width = width + "px";
+        canvas.style.height = height + "px";
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      }
+
+      function createParticle() {
+        return {
+          x: Math.random() * width,
+          y: -20 - Math.random() * height * 0.25,
+          w: 6 + Math.random() * 8,
+          h: 8 + Math.random() * 10,
+          vx: -1.2 + Math.random() * 2.4,
+          vy: 1.6 + Math.random() * 2.4,
+          rotation: Math.random() * Math.PI * 2,
+          vr: -0.08 + Math.random() * 0.16,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        };
+      }
+
+      function seedParticles() {
+        particles.length = 0;
+        const count = Math.max(40, Math.floor(width / 18));
+
+        for (let i = 0; i < count; i++) {
+          const p = createParticle();
+          p.y = Math.random() * height;
+          particles.push(p);
+        }
+      }
+
+      function step() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rotation += p.vr;
+
+          if (p.y > height + 24) {
+            particles[i] = createParticle();
+            particles[i].y = -20;
+            continue;
+          }
+
+          if (p.x < -30) p.x = width + 30;
+          if (p.x > width + 30) p.x = -30;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        }
+
+        window.requestAnimationFrame(step);
+      }
+
+      resizeCanvas();
+
+      if (!prefersReducedMotion) {
+        seedParticles();
+        step();
+      }
+
+      window.addEventListener("resize", function () {
+        resizeCanvas();
+        seedParticles();
+      });
+    })();
+  </script>
+</body>
+</html>
